@@ -3,6 +3,8 @@ import { GraphQLServer } from "graphql-yoga";
 // type definitions  >> schema
 const typeDefs = `
   type Query {
+      add(numbers : [Float!]!) : Float!
+      greeting(name: String): String!
       me : User!  
       post : Post!    
   }
@@ -25,6 +27,13 @@ const typeDefs = `
 // resolverers
 const resolvers = {
   Query: {
+    add: (_, { numbers }) => {
+      if (numbers.length === 0) {
+        return 0;
+      }
+      return numbers.reduce((acc, cur) => acc + cur);
+    },
+    greeting: (_, { name }) => `Hello ${name || "World"}`,
     me() {
       return {
         id: "1234789",
