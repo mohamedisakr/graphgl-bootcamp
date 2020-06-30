@@ -2,17 +2,17 @@ import { GraphQLServer } from "graphql-yoga";
 
 const users = [
   {
-    id: "7dbf629f-7ab3-467a-a9b6-6caccbc6c72e",
+    id: "1",
     name: "Andrew",
     email: "andrew@example.com",
   },
   {
-    id: "a68c2a52-41ad-4595-b412-48006378cb91",
+    id: "2",
     name: "Sarah",
     email: "sarah@example.com",
   },
   {
-    id: "061ef0d3-f13f-4c68-badf-e1379e3feef7",
+    id: "3",
     name: "Michael",
     email: "michael@example.com",
   },
@@ -20,23 +20,26 @@ const users = [
 
 const posts = [
   {
-    id: "83c00037-edf0-4676-8ce6-2b890175519b",
+    id: "10",
     title: "GraphQL 101",
     body: "This is how to use GraphQL...",
     published: true,
+    author: "1",
   },
   {
-    id: "8947b535-c36c-4cc3-8851-64283065b995",
+    id: "11",
     title: "GraphQL 201",
     body: "This is an advanced GraphQL post...",
     published: false,
+    author: "1",
   },
   {
-    id: "5998f660-06f6-4eeb-a5b3-cf637105cf6a",
+    id: "12",
     title: "Programming Music",
     body:
       "David Cutter Music is my favorite artist to listen to while programming.",
     published: false,
+    author: "2",
   },
 ];
 // type definitions  >> schema
@@ -60,6 +63,7 @@ const typeDefs = `
     title: String!
     body: String!
     published: Boolean
+    author : User!
   }
 `;
 
@@ -99,6 +103,11 @@ const resolvers = {
         body: "GraphQL is awosome, you have to go to this wander land",
         published: true,
       };
+    },
+  },
+  Post: {
+    author: (parent, args, ctx, info) => {
+      return users.find((user) => user.id === parent.author);
     },
   },
 };
