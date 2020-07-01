@@ -42,11 +42,32 @@ const posts = [
     author: "2",
   },
 ];
+
+const comments = [
+  {
+    id: "1",
+    text: "Thanks! Super useful post.",
+  },
+  {
+    id: "2",
+    text: "Could not agree more!",
+  },
+  {
+    id: "3",
+    text: "awosome keep going!",
+  },
+  {
+    id: "4",
+    text: "you are the best!",
+  },
+];
+
 // type definitions  >> schema
 const typeDefs = `
   type Query {
       users(query: String) : [User!]!
       posts(query: String) : [Post!]!
+      comments(query: String) : [Comment!]!
       me : User!  
       post : Post!    
   }
@@ -56,6 +77,7 @@ const typeDefs = `
     name: String!
     email: String!
     age: Int
+    posts: [Post!]!
   }
 
   type Post {
@@ -64,6 +86,11 @@ const typeDefs = `
     body: String!
     published: Boolean
     author : User!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
   }
 `;
 
@@ -88,6 +115,14 @@ const resolvers = {
           post.body.toLowerCase().includes(query.toLowerCase())
       );
     },
+    comments: (_, { query }) => {
+      if (!query) {
+        return comments;
+      }
+      return comments.filter((comment) =>
+        comment.text.toLowerCase().includes(query.toLowerCase())
+      );
+    },
     me() {
       return {
         id: "1234789",
@@ -108,6 +143,11 @@ const resolvers = {
   Post: {
     author: (parent, args, ctx, info) => {
       return users.find((user) => user.id === parent.author);
+    },
+  },
+  User: {
+    posts: (parent, args, ctx, info) => {
+      return posts.filter((post) => post.author === parent.id);
     },
   },
 };
