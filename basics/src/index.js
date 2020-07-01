@@ -83,6 +83,8 @@ const typeDefs = `
 
   type Mutation {
     createUser(name : String!, email: String!, age : Int) : User!
+    createPost(title : String!, body: String!, published : Boolean!, author:ID!) : Post!
+    createComment(text : String!, author : ID!, post : ID!) : Comment!
   }
 
   type User {
@@ -168,6 +170,37 @@ const resolvers = {
       const user = { id: uuidv4(), name, email, age };
       users.push(user);
       return user;
+    },
+
+    createPost: (parent, args, ctx, info) => {
+      const { title, body, published, author } = args;
+      const userExist = users.some((user) => user.id === author);
+      if (!userExist) {
+        throw new Error("User not fount");
+      }
+      const post = { id: uuidv4(), title, body, published, author };
+      posts.push(post);
+      return post;
+    },
+
+    createComment: (parent, args, ctx, info) => {
+      const { text, author, post } = args;
+
+      const userExist = users.some((user) => user.id === author);
+      if (!userExist) {
+        throw new Error("User not fount");
+      }
+
+      const postExist = posts.some(
+        (thePost) => thePost.id === post && thePost.published
+      );
+      if (!postExist) {
+        throw new Error("Post not fount");
+      }
+
+      const comment = { id: uuidv4(), text, author, post };
+      comments.push(comment);
+      return comment;
     },
   },
   Post: {
