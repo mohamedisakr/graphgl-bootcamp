@@ -1,7 +1,7 @@
 import { GraphQLServer } from "graphql-yoga";
 import { v4 as uuidv4 } from "uuid"; // import uuidv4 from "uuid";
 
-const users = [
+let users = [
   {
     id: "1",
     name: "Andrew",
@@ -19,7 +19,7 @@ const users = [
   },
 ];
 
-const posts = [
+let posts = [
   {
     id: "10",
     title: "GraphQL 101",
@@ -44,7 +44,7 @@ const posts = [
   },
 ];
 
-const comments = [
+let comments = [
   {
     id: "1",
     text: "Thanks! Super useful post.",
@@ -83,7 +83,11 @@ const typeDefs = `
 
   type Mutation {
     createUser(user : CreateUserInput!) : User!
+    deleteUser(id : ID!) : User!
+    
     createPost(post : CreatePostInput!) : Post!
+    deletePost(id : ID!) : Post!
+    
     createComment(comment : CreateCommentInput!) : Comment!
   }
  
@@ -182,6 +186,33 @@ const resolvers = {
       const user = { id: uuidv4(), name, email, age };
       users.push(user);
       return user;
+    },
+
+    deleteUser: (parent, args, ctx, info) => {
+      const index = users.findIndex((user) => user.id === args.id);
+      if (index === -1) {
+        throw new Error("User not found");
+      }
+      const deletedUsers = users.splice(index, 1);
+      posts = posts.filter((post) => {
+        const match = post.author !== args.id;
+        if (match) {
+          comments = comments.filter((comment) => comment.post !== post.id);
+        }
+        return !match;
+      });
+      comments = comments.filter((comment) => comment.author !== args.id);
+      return deletedUsers[0];
+    },
+
+    deletePost: (parent, args, ctx, info) => {
+      const index = posts.findIndex((post) => post.id === args.id);
+      if (index === -1) {
+        throw new Error("Post not found");
+      }
+      const deletedPosts = posts.splice(index, 1);
+      comments = comments.filter((comment) => comment.post !== args.id);
+      return deletedPosts[0];
     },
 
     createPost: (parent, args, ctx, info) => {
