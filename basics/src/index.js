@@ -1,4 +1,5 @@
 import { GraphQLServer } from "graphql-yoga";
+import { v4 as uuidv4 } from "uuid"; // import uuidv4 from "uuid";
 
 const users = [
   {
@@ -80,6 +81,10 @@ const typeDefs = `
       post : Post!    
   }
 
+  type Mutation {
+    createUser(name : String!, email: String!, age : Int) : User!
+  }
+
   type User {
     id: ID!
     name: String!
@@ -150,6 +155,19 @@ const resolvers = {
         body: "GraphQL is awosome, you have to go to this wander land",
         published: true,
       };
+    },
+  },
+  Mutation: {
+    createUser: (parent, args, ctx, info) => {
+      // console.log(args);
+      const emailTaken = users.some((user) => user.email === args.email);
+      if (emailTaken) {
+        throw new Error("Email taken");
+      }
+      const { name, email, age } = args;
+      const user = { id: uuidv4(), name, email, age };
+      users.push(user);
+      return user;
     },
   },
   Post: {
