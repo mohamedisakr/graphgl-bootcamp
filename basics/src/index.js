@@ -82,9 +82,21 @@ const typeDefs = `
   }
 
   type Mutation {
-    createUser(name : String!, email: String!, age : Int) : User!
-    createPost(title : String!, body: String!, published : Boolean!, author:ID!) : Post!
-    createComment(text : String!, author : ID!, post : ID!) : Comment!
+    createUser(user : CreateUserInput!) : User!
+    createPost(post : CreatePostInput!) : Post!
+    createComment(comment : CreateCommentInput!) : Comment!
+  }
+ 
+  input CreateUserInput {
+    name : String!, email: String!, age : Int
+  }
+
+  input CreatePostInput {
+    title : String!, body: String!, published : Boolean!, author:ID!
+  }
+
+  input CreateCommentInput {
+    text : String!, author : ID!, post : ID!
   }
 
   type User {
@@ -161,19 +173,19 @@ const resolvers = {
   },
   Mutation: {
     createUser: (parent, args, ctx, info) => {
-      // console.log(args);
+      const { name, email, age } = args.user;
       const emailTaken = users.some((user) => user.email === args.email);
       if (emailTaken) {
         throw new Error("Email taken");
       }
-      const { name, email, age } = args;
+
       const user = { id: uuidv4(), name, email, age };
       users.push(user);
       return user;
     },
 
     createPost: (parent, args, ctx, info) => {
-      const { title, body, published, author } = args;
+      const { title, body, published, author } = args.post;
       const userExist = users.some((user) => user.id === author);
       if (!userExist) {
         throw new Error("User not fount");
@@ -184,7 +196,7 @@ const resolvers = {
     },
 
     createComment: (parent, args, ctx, info) => {
-      const { text, author, post } = args;
+      const { text, author, post } = args.comment;
 
       const userExist = users.some((user) => user.id === author);
       if (!userExist) {
