@@ -14,6 +14,36 @@ const Mutation = {
     return user;
   },
 
+  updateUser: (parent, args, ctx, info) => {
+    let { id, userToUpdate } = args;
+    let { users } = ctx.db;
+    const user = users.find((user) => user.id === id);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (typeof userToUpdate.email === "string") {
+      const emailTaken = users.some(
+        (user) => user.email === userToUpdate.email
+      );
+      if (emailTaken) {
+        throw new Error("Email already exist");
+      }
+      user.email = userToUpdate.email;
+    }
+
+    if (typeof userToUpdate.name === "string") {
+      user.name = userToUpdate.name;
+    }
+
+    if (typeof userToUpdate.age !== "undefined") {
+      user.age = userToUpdate.age;
+    }
+
+    return user;
+  },
+
   deleteUser: (parent, args, ctx, info) => {
     let { users, posts, comments } = ctx.db;
     const index = users.findIndex((user) => user.id === args.id);
