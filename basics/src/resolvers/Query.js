@@ -1,6 +1,7 @@
 const Query = {
-  users: (_, { query }) => {
-    const { users } = db;
+  users: (parent, args, ctx, info) => {
+    const { users } = ctx.db;
+    const { query } = args;
     if (!query) {
       return users;
     }
@@ -8,8 +9,9 @@ const Query = {
       user.name.toLowerCase().includes(query.toLowerCase())
     );
   },
-  posts: (_, { query }) => {
-    const { posts } = db;
+  posts: (parent, args, ctx, info) => {
+    const { posts } = ctx.db;
+    const { query } = args;
     if (!query) {
       return posts;
     }
@@ -19,8 +21,9 @@ const Query = {
         post.body.toLowerCase().includes(query.toLowerCase())
     );
   },
-  comments: (_, { query }) => {
-    const { comments } = db;
+  comments: (parent, args, ctx, info) => {
+    const { comments } = ctx.db;
+    const { query } = args;
     if (!query) {
       return comments;
     }

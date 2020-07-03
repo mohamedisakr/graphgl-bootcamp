@@ -15,8 +15,8 @@ const Mutation = {
   },
 
   updateUser: (parent, args, ctx, info) => {
-    let { id, userToUpdate } = args;
-    let { users } = ctx.db;
+    const { id, userToUpdate } = args;
+    const { users } = ctx.db;
     const user = users.find((user) => user.id === id);
 
     if (!user) {
@@ -85,6 +85,32 @@ const Mutation = {
     return post;
   },
 
+  updatePost: (parent, args, ctx, info) => {
+    let { id, postToUpdate } = args;
+    const { posts } = ctx.db;
+    const post = posts.find((post) => post.id === id);
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    if (!postToUpdate.title) {
+      throw new Error("Post title required");
+    }
+    if (typeof postToUpdate.title === "string") {
+      post.title = postToUpdate.title;
+    }
+
+    if (typeof postToUpdate.body === "string") {
+      post.body = postToUpdate.body;
+    }
+
+    if (typeof post.published === "boolean") {
+      post.published = postToUpdate.published;
+    }
+    return post;
+  },
+
   createComment: (parent, args, ctx, info) => {
     const { users, posts, comments } = ctx.db;
     const { text, author, post } = args.comment;
@@ -103,6 +129,23 @@ const Mutation = {
 
     const comment = { id: uuidv4(), text, author, post };
     comments.push(comment);
+    return comment;
+  },
+
+  updateComment: (parent, args, ctx, info) => {
+    const { id, commentToUpdate } = args;
+    const { comments } = ctx.db;
+
+    const comment = comments.find((comment) => comment.id === id);
+
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+
+    if (typeof commentToUpdate.text === "string") {
+      comment.text = commentToUpdate.text;
+    }
+
     return comment;
   },
 
