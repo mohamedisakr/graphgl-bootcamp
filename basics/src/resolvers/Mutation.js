@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { PubSub } from "graphql-yoga";
 
 const Mutation = {
   createUser: (parent, args, ctx, info) => {
@@ -111,8 +112,8 @@ const Mutation = {
     return post;
   },
 
-  createComment: (parent, args, ctx, info) => {
-    const { users, posts, comments } = ctx.db;
+  createComment: (parent, args, { db, pubsub }, info) => {
+    const { users, posts, comments } = db;
     const { text, author, post } = args.comment;
 
     const userExist = users.some((user) => user.id === author);
@@ -129,6 +130,7 @@ const Mutation = {
 
     const comment = { id: uuidv4(), text, author, post };
     comments.push(comment);
+    pubsub.publish(`comment ${post}`, { comment });
     return comment;
   },
 
